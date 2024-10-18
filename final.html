@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three Sliding Screens App</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Tabs Wrapper: 3 Tabs Horizontally Aligned */
+        .tabs {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 300%;
+            /* 3 screens wide */
+            height: 100vh;
+        }
+
+        /* Individual Tab Style */
+        .tab {
+            width: 100vw;
+            flex-shrink: 0;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Navigation Bar */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        nav button:hover {
+            text-decoration: underline;
+        }
+
+        /* Map Container */
+        #map {
+            width: 100%;
+            height: 80vh;
+        }
+
+        /* Grocery List Item Styles */
+        .grocery-list-item {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f4f4f4;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .grocery-list-item button {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .grocery-list-item button:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <button onclick="showTab(0)">Calculator</button>
+        <button onclick="showTab(1)">Map</button>
+        <button onclick="showTab(2)">Grocery List</button>
+    </nav>
+
+    <!-- Tabs Container -->
+    <div class="tabs" id="tabs">
+        <!-- Calculator Tab -->
+        <div class="tab">
+            <h2>Calculator</h2>
+            <input type="text" id="calcInput" placeholder="Enter expression (e.g., 2+2)" />
+            <button onclick="calculate()">Calculate</button>
+            <p id="calcResult">Result: </p>
+        </div>
+
+        <!-- Map Tab -->
+        <div class="tab">
+            <h2>Google Map</h2>
+            <div id="map"></div>
+        </div>
+
+        <!-- Grocery List Tab -->
+        <div class="tab">
+            <h2>Grocery List</h2>
+            <input type="text" id="groceryInput" placeholder="Enter grocery item" />
+            <button onclick="addGroceryItem()">Add Item</button>
+            <div id="groceryList"></div>
+        </div>
+    </div>
+
+    <script>
+        let map; // Declare the map variable globally
+
+        // Function to switch between tabs
+        function showTab(index) {
+            const tabs = document.getElementById('tabs');
+            tabs.style.transform = `translateX(-${index * 100}vw)`;
+
+            if (index === 1 && map) {
+                // Ensure the map renders correctly by triggering a resize event
+                google.maps.event.trigger(map, 'resize');
+            }
+        }
+
+        // Calculator Logic
+        function calculate() {
+            const input = document.getElementById('calcInput').value;
+            try {
+                const result = eval(input); // Use with caution in production!
+                document.getElementById('calcResult').innerText = 'Result: ' + result;
+            } catch (error) {
+                document.getElementById('calcResult').innerText = 'Invalid expression';
+            }
+        }
+
+        // Grocery List Logic
+        function addGroceryItem() {
+            const groceryInput = document.getElementById('groceryInput').value.trim();
+            if (groceryInput) {
+                const groceryList = document.getElementById('groceryList');
+
+                const item = document.createElement('div');
+                item.className = 'grocery-list-item';
+
+                const itemName = document.createElement('span');
+                itemName.innerText = groceryInput;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Remove';
+                deleteButton.onclick = () => groceryList.removeChild(item);
+
+                item.appendChild(itemName);
+                item.appendChild(deleteButton);
+                groceryList.appendChild(item);
+
+                document.getElementById('groceryInput').value = ''; // Clear input
+            }
+        }
+
+        // Initialize Google Map
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 40.7447, lng: -74.0324 }, // Stevens Institute of Technology Coordinates
+                zoom: 14,
+            });
+
+            new google.maps.Marker({
+                position: { lat: 40.7447, lng: -74.0324 },
+                map,
+                title: 'Stevens Institute of Technology',
+            });
+        }
+    </script>
+
+    <!-- Google Maps API Script -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAepRWKeZTmLJIMubgZQqY39CVe2__J5-s&callback=initMap" async defer></script>
+</body>
+
+</html>
